@@ -11,6 +11,7 @@ const loader = document.querySelector('#loader-span');
 const loadBtn = document.querySelector('.button');
 
 let page = 1;
+
 let per_page = 40;
 
 let gallery = new SimpleLightbox('.image-list a', {
@@ -52,6 +53,7 @@ async function submitHandler(event) {
 
     if (images.totalHits === 0) {
       loader.classList.replace('loader', 'is-hidden');
+      
       return iziToast.error({
         message:
           'Sorry, there are no images matching your search query. Please try again!',
