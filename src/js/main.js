@@ -39,6 +39,8 @@ async function submitHandler(event) {
 
     list.innerHTML = '';
 
+    loadBtn.removeEventListener('click', loadHandler);
+
     page = 1;
 
     const q = input.value.toString();
@@ -53,7 +55,8 @@ async function submitHandler(event) {
 
     if (images.totalHits === 0) {
       loader.classList.replace('loader', 'is-hidden');
-      
+      loadBtn.classList.replace('load-btn', 'is-hidden');
+
       return iziToast.error({
         message:
           'Sorry, there are no images matching your search query. Please try again!',
@@ -94,6 +97,7 @@ async function submitHandler(event) {
       renderImages(images.hits);
       gallery.refresh();
       loader.classList.replace('loader', 'is-hidden');
+      window.scrollBy(0, list.firstChild.getBoundingClientRect().height * 2);
     }
   } catch (error) {
     console.error(error);
