@@ -39,11 +39,9 @@ async function submitHandler(event) {
 
     list.innerHTML = '';
 
-    loadBtn.removeEventListener('click', loadHandler);
-
     page = 1;
 
-    const q = input.value.toString();
+    let q = input.value.toString();
 
     loader.classList.replace('is-hidden', 'loader');
 
@@ -78,7 +76,7 @@ async function submitHandler(event) {
 
       page++;
 
-      const images = await getImages({
+      const addedImages = await getImages({
         q,
         page,
         per_page,
@@ -94,7 +92,7 @@ async function submitHandler(event) {
         });
       }
 
-      renderImages(images.hits);
+      renderImages(addedImages.hits);
       gallery.refresh();
       loader.classList.replace('loader', 'is-hidden');
       window.scrollBy(0, list.firstChild.getBoundingClientRect().height * 2);
