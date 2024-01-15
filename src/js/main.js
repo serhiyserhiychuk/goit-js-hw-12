@@ -11,8 +11,8 @@ const loader = document.querySelector('#loader-span');
 const loadBtn = document.querySelector('.button');
 
 let page = 1;
-
 let per_page = 40;
+let q;
 
 let gallery = new SimpleLightbox('.image-list a', {
   captionsData: 'alt',
@@ -21,6 +21,7 @@ let gallery = new SimpleLightbox('.image-list a', {
 });
 
 form.addEventListener('submit', submitHandler);
+loadBtn.addEventListener('click', loadHandler);
 
 const api = axios.create({
   baseURL: `https://pixabay.com/api/`,
@@ -41,7 +42,7 @@ async function submitHandler(event) {
 
     page = 1;
 
-    let q = input.value.toString();
+    q = input.value.trim();
 
     loader.classList.replace('is-hidden', 'loader');
 
@@ -68,35 +69,37 @@ async function submitHandler(event) {
     loader.classList.replace('loader', 'is-hidden');
     loadBtn.classList.replace('is-hidden', 'load-btn');
     input.value = '';
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-    loadBtn.addEventListener('click', loadHandler);
+async function loadHandler() {
+  try {
+    loader.classList.replace('is-hidden', 'loader');
 
-    async function loadHandler() {
-      loader.classList.replace('is-hidden', 'loader');
+    page++;
 
-      page++;
+    const addedImages = await getImages({
+      q,
+      page,
+      per_page,
+    });
 
-      const addedImages = await getImages({
-        q,
-        page,
-        per_page,
-      });
-
-      if (page >= Math.ceil(images.totalHits / per_page)) {
-        loader.classList.replace('loader', 'is-hidden');
-        loadBtn.classList.replace('load-btn', 'is-hidden');
-        return iziToast.info({
-          message:
-            'We are sorry, but you have reached the end of search results.',
-          position: 'topRight',
-        });
-      }
-
-      renderImages(addedImages.hits);
-      gallery.refresh();
+    if (page >= Math.ceil(addedImages.totalHits / per_page)) {
       loader.classList.replace('loader', 'is-hidden');
-      window.scrollBy(0, list.firstChild.getBoundingClientRect().height * 2);
+      loadBtn.classList.replace('load-btn', 'is-hidden');
+      return iziToast.info({
+        message:
+          'We are sorry, but you have reached the end of search results.',
+        position: 'topRight',
+      });
     }
+
+    renderImages(addedImages.hits);
+    gallery.refresh();
+    loader.classList.replace('loader', 'is-hidden');
+    window.scrollBy(0, list.firstChild.getBoundingClientRect().height * 2);
   } catch (error) {
     console.error(error);
   }
@@ -112,9 +115,10 @@ async function getImages(params) {
 }
 
 function renderImages(images = []) {
-  const markup = images.map(
-    image =>
-      `<a href="${image.largeImageURL}"
+  const markup = images
+    .map(
+      image =>
+        `<a href="${image.largeImageURL}"
             <li class="photo-card">
             <img class="photo" src="${image.webformatURL}" alt="${image.tags}">
             <div class="card-container">
@@ -131,6 +135,7 @@ function renderImages(images = []) {
             </div>
             </li>
             </a>`
-  );
+    )
+    .join('');
   list.insertAdjacentHTML('beforeend', markup);
 }
